@@ -1,0 +1,79 @@
+USE datos_padron;
+
+-- EN TXT
+DROP TABLE cribado3_txt;
+CREATE TABLE cribado3_txt AS
+SELECT trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio, cod_dist_seccion,
+sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres
+FROM padron_txt_t
+GROUP BY desc_distrito, desc_barrio, cod_dist_seccion;
+
+SELECT * FROM cribado3_txt WHERE desc_distrito LIKE 'CENTRO';
+
+
+-- resultado de txt
+DROP TABLE resultado1_txt;
+CREATE TABLE resultado1_txt AS
+SELECT desc_distrito, desc_barrio, max(espanoleshombres) AS Max_ESP_Hombres,
+min(espanoleshombres) AS MIN_ESP_Hombres, avg(espanoleshombres) AS MEDIA_ESP_Hombres,
+avg(extranjeroshombres + extranjerosmujeres) AS MEDIA_ESXTRANJEROS,
+count(espanoleshombres) AS secciones_medidas
+FROM cribado3_txt
+WHERE desc_distrito LIKE 'CENTRO' OR desc_distrito LIKE 'CHAMBERI' OR desc_distrito LIKE 'USERA'
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM resultado1_txt;
+
+
+
+-- EN PARQUET
+DROP TABLE cribado3_parquet;
+CREATE TABLE cribado3_parquet AS
+SELECT trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio, cod_dist_seccion,
+sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres
+FROM padron_parquet_t
+GROUP BY desc_distrito, desc_barrio, cod_dist_seccion;
+
+SELECT * FROM cribado3_parquet WHERE desc_distrito LIKE 'CENTRO';
+
+
+-- resultado de parquet
+DROP TABLE resultado1_parquet;
+CREATE TABLE resultado1_parquet AS
+SELECT desc_distrito, desc_barrio, max(espanoleshombres) AS Max_ESP_Hombres,
+min(espanoleshombres) AS MIN_ESP_Hombres, avg(espanoleshombres) AS MEDIA_ESP_Hombres,
+avg(extranjeroshombres + extranjerosmujeres) AS MEDIA_ESXTRANJEROS,
+count(espanoleshombres) AS secciones_medidas
+FROM cribado3_parquet
+WHERE desc_distrito LIKE 'CENTRO' OR desc_distrito LIKE 'CHAMBERI' OR desc_distrito LIKE 'USERA'
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM resultado1_parquet;
+
+
+-- EN la de PARTICIÓN:
+DROP TABLE cribado3_particion;
+CREATE TABLE cribado3_particion AS
+SELECT trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio, cod_dist_seccion,
+sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres
+FROM padron_particionado2
+GROUP BY desc_distrito, desc_barrio, cod_dist_seccion;
+
+SELECT * FROM cribado3_particion WHERE desc_distrito LIKE 'CENTRO';
+
+
+-- resultado de particion
+DROP TABLE resultado1_particion;
+CREATE TABLE resultado1_particion AS
+SELECT desc_distrito, desc_barrio, max(espanoleshombres) AS Max_ESP_Hombres,
+min(espanoleshombres) AS MIN_ESP_Hombres, avg(espanoleshombres) AS MEDIA_ESP_Hombres,
+avg(extranjeroshombres + extranjerosmujeres) AS MEDIA_ESXTRANJEROS,
+count(espanoleshombres) AS secciones_medidas
+FROM cribado3_particion
+WHERE desc_distrito LIKE 'CENTRO' OR desc_distrito LIKE 'CHAMBERI' OR desc_distrito LIKE 'USERA'
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM resultado1_particion;

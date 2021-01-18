@@ -1,0 +1,68 @@
+USE datos_padron;
+SHOW TABLES;
+DROP TABLE padron_txt;
+CREATE TABLE padron_txt(
+    COD_DISTRITO int,
+    DESC_DISTRITO STRING,
+    COD_DIST_BARRIO float,
+    DESC_BARRIO STRING,
+    COD_BARRIO float,
+    COD_DIST_SECCION float,
+    COD_SECCION float,
+    COD_EDAD_INT float,
+    EspanolesHombres float,
+    EspanolesMujeres float,
+    ExtranjerosHombres float,
+    ExtranjerosMujeres float)
+	ROW FORMAT SERDE
+	'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+	WITH SERDEPROPERTIES (
+	"separatorChar" = ";",
+	"quoteChar" = "\"",
+	"escapeChar" = "\n")
+	
+	STORED AS TEXTFILE
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+LOAD DATA LOCAL INPATH '/home/cloudera/ejercicios/practicas/Rango_Edades_Seccion_202012.csv' overwrite into table padron_txt;
+SELECT * from padron_txt limit 10;
+
+
+--Creando tabla txt2 con el trim de la anterior:
+DROP TABLE padron_txt2;
+CREATE TABLE padron_txt2 AS
+SELECT CAST(cod_distrito AS INT), trim(desc_distrito) AS desc_distrito, CAST(cod_dist_barrio AS INT),
+TRIM(desc_barrio) AS desc_barrio, CAST(cod_barrio AS INT), CAST(cod_dist_seccion AS INT),
+CAST(cod_seccion AS INT), CAST(cod_edad_int AS INT), CAST(espanoleshombres AS INT),
+CAST(espanolesmujeres AS INT), CAST(extranjeroshombres AS INT),
+CAST(extranjerosmujeres AS INT)
+FROM padron_txt; --STORED AS TEXTFILE por defecto;
+
+SELECT * FROM padron_txt2 limit 5;
+
+
+-- Pruebas. Se puede cargar desde hdfs como en los apuntes pero desaparece de la carpeta de hdfs por no estar guardado en base.
+CREATE TABLE padron_txt(
+    COD_DISTRITO float,
+    DESC_DISTRITO string,
+    COD_DIST_BARRIO float,
+    DESC_BARRIO string,
+    COD_BARRIO float,
+    COD_DIST_SECCION float,
+    COD_SECCION float,
+    COD_EDAD_INT float,
+    EspanolesHombres float,
+    EspanolesMujeres float,
+    ExtranjerosHombres float,
+    ExtranjeshrosMujeres float)
+	ROW FORMAT DELIMITED 
+	FIELDS TERMINATED BY ';' 
+	ESCAPED BY '"'
+	COLLECTION ITEMS TERMINATED BY '"'
+	LINES TERMINATED BY '\n'
+	--NULL DEFINED AS ''
+	STORED AS TEXTFILE
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+LOAD DATA LOCAL INPATH '/home/cloudera/ejercicios/practicas/Rango_Edades_Seccion_202012.csv' overwrite into table padron_txt;
+SELECT * from padron_txt limit 10;

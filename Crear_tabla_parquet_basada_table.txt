@@ -1,0 +1,49 @@
+USE datos_padron;
+DROP TABLE padron_parquet;
+CREATE TABLE padron_parquet(
+    COD_DISTRITO int,
+    DESC_DISTRITO STRING,
+    COD_DIST_BARRIO int,
+    DESC_BARRIO STRING,
+    COD_BARRIO int,
+    COD_DIST_SECCION int,
+    COD_SECCION int,
+    COD_EDAD_INT int,
+    EspanolesHombres int,
+    EspanolesMujeres int,
+    ExtranjerosHombres int,
+    ExtranjerosMujeres int)
+    ROW FORMAT SERDE 'parquet.hive.serde.ParquetHiveSerDe' stored as
+    INPUTFORMAT 'parquet.hive.DeprecatedParquetInputFormat'
+    OUTPUTFORMAT 'parquet.hive.DeprecatedParquetOutputFormat'
+	--LOCATION '/home/cloudera/ejercicios/practicas'
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+	insert overwrite table padron_parquet select * from padron_txt;
+	SELECT * FROM padron_parquet limit 5;
+	
+--Para padron_txt2:
+
+DROP TABLE padron_parquet2;
+CREATE TABLE padron_parquet2(
+    COD_DISTRITO int,
+    DESC_DISTRITO STRING,
+    COD_DIST_BARRIO int,
+    DESC_BARRIO STRING,
+    COD_BARRIO int,
+    COD_DIST_SECCION int,
+    COD_SECCION int,
+    COD_EDAD_INT int,
+    EspanolesHombres int,
+    EspanolesMujeres int,
+    ExtranjerosHombres int,
+    ExtranjerosMujeres int)
+    ROW FORMAT SERDE 'parquet.hive.serde.ParquetHiveSerDe' stored as
+    INPUTFORMAT 'parquet.hive.DeprecatedParquetInputFormat'
+    OUTPUTFORMAT 'parquet.hive.DeprecatedParquetOutputFormat'
+	--LOCATION '/home/cloudera/ejercicios/practicas'
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+	insert overwrite table padron_parquet2 select * from padron_txt2;
+	SELECT * FROM padron_parquet2 limit 5;
+	

@@ -1,0 +1,48 @@
+--INVALIDE METADATA y ojo con el refresh que también hay que hacerlo en IMPALA y HIVE
+INVALIDATE METADATA datos_padron.padron_particionado2;
+INVALIDATE METADATA datos_padron.padron_parquet_t;
+
+USE datos_padron;
+
+DROP TABLE cribado2_parquet;
+CREATE TABLE cribado2_parquet AS
+SELECT sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres, trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio
+FROM padron_parquet_t
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM cribado2_parquet limit 5;
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado2_parquet
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;
+
+
+-- EN la de PARTICIÓN:
+DROP TABLE cribado2_particion;
+CREATE TABLE cribado2_particion AS
+SELECT sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres, trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio
+FROM padron_particionado2
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM cribado2_particion limit 5;
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado2_particion
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;
+
+
+

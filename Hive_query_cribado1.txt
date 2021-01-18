@@ -1,0 +1,42 @@
+--Sumando españolesHombres por Desc_Distrito y DESC_Barrio.
+
+--En TXT aquí usa metadata para el sum. porque es como la primera operación así que va bien
+--Falta que 
+DROP TABLE cribado1_txt;
+CREATE TABLE cribado1_txt AS
+SELECT sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres, trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio
+FROM padron_txt
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM cribado1_txt limit 5;
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado1_txt
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;
+
+--En PARQUET
+DROP TABLE cribado1_parquet;
+CREATE TABLE cribado1_parquet AS
+SELECT sum(espanoleshombres) AS EspanolesHombres, sum(espanolesmujeres) AS EspanolesMujeres,
+sum(extranjeroshombres) AS ExtranjerosHombres, sum(extranjerosmujeres) AS extranjerosMujeres, trim(desc_distrito) AS desc_distrito, trim(desc_barrio) AS desc_barrio
+FROM padron_txt
+GROUP BY desc_distrito, desc_barrio;
+
+SELECT * FROM cribado1_parquet limit 5;
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado1_parquet
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;

@@ -1,0 +1,93 @@
+-- CREANDO TABLA OTRA VEZ HABIENDO CAMBIADO EL FORMATO AL CSV:
+CREATE TABLE padron_txt_t(
+    COD_DISTRITO int,
+    DESC_DISTRITO STRING,
+    COD_DIST_BARRIO int,
+    DESC_BARRIO STRING,
+    COD_BARRIO int,
+    COD_DIST_SECCION int,
+    COD_SECCION int,
+    COD_EDAD_INT int,
+    EspanolesHombres int,
+    EspanolesMujeres int,
+    ExtranjerosHombres int,
+    ExtranjerosMujeres int)
+    ROW FORMAT SERDE
+	'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+	WITH SERDEPROPERTIES (
+	"separatorChar" = ";",
+	"quoteChar" = "\"")
+	STORED AS TEXTFILE
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+
+LOAD DATA LOCAL INPATH '/home/cloudera/ejercicios/practicas/Rango_Edades_Seccion_202012_v2.txt' overwrite into table padron_parquet_t;
+SELECT * FROM padron_parquet_t limit 10;
+
+DROP TABLE padron_parquet_t;
+CREATE TABLE padron_parquet_t(
+    COD_DISTRITO int,
+    DESC_DISTRITO STRING,
+    COD_DIST_BARRIO int,
+    DESC_BARRIO STRING,
+    COD_BARRIO int,
+    COD_DIST_SECCION INT,
+    COD_SECCION INT,
+    COD_EDAD_INT INT,
+    EspanolesHombres INT,
+    EspanolesMujeres INT,
+    ExtranjerosHombres INT,
+    ExtranjerosMujeres INT)
+    ROW FORMAT SERDE 'parquet.hive.serde.ParquetHiveSerDe' stored as PARQUET
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+	;
+	insert overwrite table padron_parquet_t select * from padron_txt_t;
+	SELECT * FROM padron_parquet_t limit 5;
+
+
+
+
+
+
+
+---------
+
+---LOS SETS Pasado por antonio:
+
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+SET hive.exec.max.dynamic.partitions = 10000;
+SET hive.exec.max.dynamic.partitions.pernode = 1000;
+--cloudera tiene poco margen de ram, se lo aumentamos para el map reduce de la particion
+set mapreduce.map.memory.mb = 2048;
+set mapreduce.reduce.memory.mb = 2048;
+set mapreduce.map.java.opts=-Xmx1800m;
+
+--Creamos la particion:
+DROP TABLE padron_particionado2;
+CREATE TABLE padron_particionado2(
+    COD_DISTRITO int,
+    COD_DIST_BARRIO int,
+    COD_BARRIO int,
+    COD_DIST_SECCION int,
+    COD_SECCION int,
+    COD_EDAD_INT int,
+    EspanolesHombres int,
+    EspanolesMujeres int,
+    ExtranjerosHombres int,
+    ExtranjerosMujeres int)
+    PARTITIONED BY (DESC_DISTRITO STRING, DESC_BARRIO STRING)
+    ROW FORMAT SERDE 'parquet.hive.serde.ParquetHiveSerDe' stored as PARQUET
+--    INPUTFORMAT 'parquet.hive.DeprecatedParquetInputFormat'
+--    OUTPUTFORMAT 'parquet.hive.DeprecatedParquetOutputFormat'
+	--LOCATION '/home/cloudera/ejercicios/practicas'
+	TBLPROPERTIES ('serialization.null.format'='', 'skip.header.line.count' = '1')
+;
+
+
+
+INSERT OVERWRITE TABLE padron_particionado2 PARTITION(desc_distrito, desc_barrio)
+SELECT cod_distrito,cod_dist_barrio,cod_barrio,cod_dist_seccion, cod_seccion, cod_edad_int, espanolesHombres,espanolesMujeres,extranjerosHombres, extranjerosMujeres, desc_distrito, desc_barrio
+FROM datos_padron.padron_parquet_t;
+
+SELECT * FROM padron_particionado2 limit 5;

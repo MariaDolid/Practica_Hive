@@ -1,0 +1,65 @@
+--INVALIDE METADATA y ojo con el refresh que también hay que hacerlo en IMPALA
+INVALIDATE METADATA datos_padron.padron_parquet;
+
+INVALIDATE METADATA datos_padron.padron_txt;
+
+
+--TXT
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado1_txt
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;
+
+
+
+--PARKET
+
+SELECT desc_distrito, desc_barrio, espanoleshombres, espanolesmujeres, extranjeroshombres, extranjerosmujeres
+FROM cribado1_parquet
+WHERE desc_distrito LIKE 'CENTRO' 
+OR desc_distrito LIKE 'LATINA' 
+OR desc_distrito LIKE 'CHAMARTIN'
+OR desc_distrito LIKE 'TETUAN'
+OR desc_distrito LIKE 'VICALVARO'
+OR desc_distrito LIKE 'BARAJAS'
+ORDER BY desc_distrito, desc_barrio;
+
+/*
+--NOTA: FUNCIONA PORQUE ESTA GUARDADO EN __ TABLA EN HIVE PURA __ 
+Si se usa las de _txt como tal, hay que cambiar en select, las columnas al menos de int
+por CAST(col AS INT) para que lo pueda leer como números y operar en impala. Las operaciones aqui las hice en HIVE.
+
+*/
+
+
+--DESDE EL ORIGINAL
+
+--PARKET
+SELECT desc_distrito, desc_barrio, sum(espanoleshombres), sum(espanolesmujeres), sum(extranjeroshombres), sum(extranjerosmujeres)
+FROM padron_parquet
+WHERE TRIM(desc_distrito) LIKE 'CENTRO' 
+OR TRIM(desc_distrito) LIKE 'LATINA' 
+OR TRIM(desc_distrito) LIKE 'CHAMARTIN'
+OR TRIM(desc_distrito) LIKE 'TETUAN'
+OR TRIM(desc_distrito) LIKE 'VICALVARO'
+OR TRIM(desc_distrito) LIKE 'BARAJAS'
+GROUP BY desc_distrito, desc_barrio;
+
+--TXT
+SELECT sum(CAST(espanoleshombres AS INT)), sum(CAST(espanolesmujeres AS INT)), sum(CAST(extranjeroshombres AS INT), sum(CAST(extranjerosmujeres AS INT))
+FROM padron_txt
+WHERE TRIM(desc_distrito) LIKE 'CENTRO' 
+OR TRIM(desc_distrito) LIKE 'LATINA' 
+OR TRIM(desc_distrito) LIKE 'CHAMARTIN'
+OR TRIM(desc_distrito) LIKE 'TETUAN'
+OR TRIM(desc_distrito) LIKE 'VICALVARO'
+OR TRIM(desc_distrito) LIKE 'BARAJAS'
+GROUP BY desc_distrito, desc_barrio;
+
+--Este último da ERROR porque hay que definir el CAST así desde la tabla en HIVE. Por tanto es mejor lo de antes
